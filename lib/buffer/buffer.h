@@ -88,9 +88,9 @@
 #define DRIVER_ADDRESS 0b00 // TMC Driver address according to MS1 and MS2
 #define R_SENSE 0.11f // Match to your driver
 
-#define SPEED       260  //转速(单位：r/min)
+static int32_t SPEED=260;  //转速(单位：r/min)
 #define Move_Divide_NUM			((int32_t)(64))		//(每步柔性件控制细分量)
-#define VACTRUAL_VALUE (uint32_t)(SPEED*Move_Divide_NUM*200/60/0.715)   //VACTUAL寄存器值
+static int32_t VACTRUAL_VALUE=(uint32_t)(SPEED*Move_Divide_NUM*200/60/0.715) ;  //VACTUAL寄存器值
 
 #define STOP 0				//停止
 #define I_CURRENT (500)		//电流

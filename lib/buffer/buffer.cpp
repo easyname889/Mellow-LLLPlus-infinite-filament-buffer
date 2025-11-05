@@ -45,7 +45,6 @@ static Motor_State last_motor_state=Stop;
 
 bool is_front=false;//前进标志位
 uint32_t front_time=0;//前进时间
-const int EEPROM_ADDR_TIMEOUT = 0;
 const uint32_t DEFAULT_TIMEOUT = 60000;
 uint32_t timeout=60000;//超时时间，单位：ms;
 bool is_error=false;//错误标志位，如果连续60s推送耗材没停过，则认为错误
@@ -68,20 +67,26 @@ uint8_t key2_press_cnt=0;
 uint32_t inform_flag=false;
 uint32_t inform_times=0;
 
-const int EEPROM_ADDR_STEPS = 4;
 const uint32_t DEFAULT_STEPS = 916;
 uint32_t steps=916;//每毫米脉冲数;
 BlockageDetect blockage_detect={0};//堵料检测结构体
 bool connet_mdm_flag=false;
 uint32_t blockage_inform_times=0;
 
-const int EEPROM_ADDR_ENCODER_LENGTH = 8;
+
 const float DEFAULT_ENCODER_LENGTH = 1.73;
 float encoder_length=1.73;//MDM段堵料模块每脉冲对应的线材移动量（mm/pulse）
 
-const int EEPROM_ADDR_ERROR_SCALE = 12;
+
 const float DEFAULT_ALLOW_ERROR_SCALE = 2;
 float allow_error_scale=2;//允许误差比例
+
+const int EEPROM_ADDR_TIMEOUT = 0;
+const int EEPROM_ADDR_STEPS = 4;
+const int EEPROM_ADDR_ENCODER_LENGTH = 8;
+const int EEPROM_ADDR_ERROR_SCALE = 12;
+const int EEPROM_ADDR_SPEED = 16;
+
 
 //独立看门狗
 #include "stm32f0xx_hal_iwdg.h"
@@ -156,6 +161,14 @@ void buffer_init(){
     // Serial.print("read timeout: ");
     // Serial.println(timeout);
   }
+
+  EEPROM.get(EEPROM_ADDR_SPEED, SPEED);
+  if (SPEED < 0 || SPEED > 1000) {
+    SPEED=260;
+  }
+  VACTRUAL_VALUE=(uint32_t)(SPEED*Move_Divide_NUM*200/60/0.715) ;  //VACTUAL寄存器值
+
+
 
   timer.pause();
   timer.setPrescaleFactor(4800);//4800分频  48000000/4800=10000
@@ -817,7 +830,28 @@ void USB_Serial_Analys(void){
 				Serial.print("set scale length succeed! allow_error_scale=");
 				Serial.println(allow_error_scale);
 
-			}					
+			}
+			else if(strstr(serial_buf.c_str(),"speed")){
+				int index=serial_buf.indexOf(" ");
+				if(index==-1){
+					serial_buf="";
+					Serial.println("speed: "+String(SPEED));
+					return ;
+				}
+				serial_buf=serial_buf.substring(index+1);
+				// float num = serial_buf.toFloat();
+				float num = fastAtof(serial_buf.c_str());
+				if(num<0){
+					serial_buf="";
+					Serial.println("Error: Invalid speed  value.");
+				}
+				SPEED=num;
+				VACTRUAL_VALUE=(uint32_t)(SPEED*Move_Divide_NUM*200/60/0.715) ;  //VACTUAL寄存器值
+				EEPROM.put(EEPROM_ADDR_SPEED, SPEED);
+				serial_buf="";
+				Serial.print("set speed  succeed! speed=");
+				Serial.println(SPEED);
+			}			
 
 
 			else{
@@ -831,6 +865,7 @@ void USB_Serial_Analys(void){
 				Serial.print("|     read timeout: <rt CRLF>                 |\n");
 				Serial.print("|     show all info : <info CRLF>             |\n");
 				Serial.print("|     set scale: <scale nnn CRLF>             |\n");
+				Serial.print("|     set speed(r/min): <speed nnn CRLF>      |\n");
 				Serial.print("+-----------------------------------------------+\n\n");
 			}
 			serial_buf="";
