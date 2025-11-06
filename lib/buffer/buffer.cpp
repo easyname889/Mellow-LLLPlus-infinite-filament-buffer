@@ -381,6 +381,7 @@ void motor_control(void)
 	//按键1按下后长按
 	if(key1_press_flag&&cur_times-key1_press_times>=500||digitalRead(BACK_SIGNAL_PIN)==LOW)
 	{
+		
 		WRITE_EN_PIN(0);//使能
     	driver.VACTUAL(STOP);	//停止
 		
@@ -400,6 +401,7 @@ void motor_control(void)
 		front_time=0;
 		is_error=false;
 		WRITE_EN_PIN(1);//失能
+		is_error=true;
 
 	}
 	else if(key2_press_flag&&cur_times-key2_press_times>=500||digitalRead(FRONT_SIGNAL_PIN)==LOW)//按键2按下后长按
