@@ -103,7 +103,7 @@ void iwdg_init(void)
 	IWDG->PR = IWDG_PRESCALER_256;  
 
 	// 3. 设置重载值
-	IWDG->RLR = 125*2-1;  //超时时间2s
+	IWDG->RLR = 125*10-1;  //超时时间2s
 
 	// 4. 启动 IWDG
 	IWDG->KR = 0xCCCC;     	
@@ -136,7 +136,6 @@ void buffer_init(){
 
 	if(Check_Connet_MDM()){
 		connet_mdm_flag=true;
-		Pulse_Receive_Init();
 		Serial.println("有连接");
 	}
 	else{
@@ -145,7 +144,7 @@ void buffer_init(){
 		
 	}
 
-
+  Pulse_Receive_Init();
   buffer_sensor_init();
   buffer_motor_init();
   Signal_Dir_Init();
@@ -775,8 +774,11 @@ void USB_Serial_Analys(void){
 				serial_buf="";
 				Serial.print("set steps succeed! steps=");
 				Serial.println(steps);
-				REIN_TIM_SIGNAL_COUNT_DeInit();
-				REIN_TIM_SIGNAL_COUNT_Init();
+				if(connet_mdm_flag){
+					REIN_TIM_SIGNAL_COUNT_DeInit();
+					REIN_TIM_SIGNAL_COUNT_Init();
+				}
+
 			}		
 			else if(strstr(serial_buf.c_str(),"clear")){
 				//重新计数
@@ -1011,8 +1013,11 @@ void Pulse_Receive_Init(void){
 
 
 	// PULSE2_PIN初始化
-	pinMode(PULSE2_PIN,INPUT);
-	attachInterrupt(PULSE2_PIN,&Recv_MDM_Pulse_IT_Callback,RISING);
+	if(connet_mdm_flag){
+		pinMode(PULSE2_PIN,INPUT);
+		attachInterrupt(PULSE2_PIN,&Recv_MDM_Pulse_IT_Callback,RISING);
+	}
+
 	EEPROM.get(EEPROM_ADDR_ENCODER_LENGTH, encoder_length);
 	// 判断读取的值是否有效（例如首次写入前是 0xFFFFFFFF 或 0）
 	if (encoder_length == 0||isnan(encoder_length))
@@ -1045,7 +1050,10 @@ void Pulse_Receive_Init(void){
 		Serial.println(steps);
 	}
 	
-	REIN_TIM_SIGNAL_COUNT_Init();
+	if(connet_mdm_flag){
+		REIN_TIM_SIGNAL_COUNT_Init();
+	}
+	
 
 	blockage_detect.allow_error = encoder_length*allow_error_scale;
 }
