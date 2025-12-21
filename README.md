@@ -1,4 +1,4 @@
-aliexpress.com/item/1005008820016221.html
+## I would be super happy if you bought your LLLP`s trough my affiliate link here, you get same price and i get a couple of cents =) ---> https://s.click.aliexpress.com/e/_c3Mx41N7
 ---
 
 # Fly Buffer LLLP - Smart Daisy-Chain Firmware (V1.2)
