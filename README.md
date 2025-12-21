@@ -3,7 +3,8 @@
 
 ##To create a infinite filament system you need at least 2 LLLPs, if you have a Elegoo Orangestorm Giga printer i would recommend one front LLLP that is running "front" and that will run separate from the back daisy chained ones. So its 1+2 at minimum (total 3).
 ---
-
+---
+---
 # Fly Buffer LLLP - Smart Daisy-Chain Firmware (V1.2)
 
 This custom firmware for the **Mellow Fly Buffer (LLLP)** board completely overhauls the logic to allow for **Round-Robin Continuous Feeding**. It enables multiple buffer units to be daisy-chained together, automatically switching to the next spool when one runs empty, creating an infinite filament loop for 3D printing.
