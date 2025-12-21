@@ -13,7 +13,7 @@ Link multiple LLLP units together (e.g., 1 → 2 → 3 → 1). When Unit 1 runs 
 ### 2. 🧠 Smart Hysteresis Feeding
 Unlike the factory "Bang-Bang" control, this firmware uses a latching logic:
 *   **Trigger:** Starts feeding at full speed when the buffer is empty (Hall 3).
-*   **Latch:** *Continues* feeding through the neutral zone.
+*   **Latch:** *Continues* feeding through the neutral zone with the speed you choose (this is the slower maintainance speed).
 *   **Stop:** Stops only when the buffer is full (Hall 2).
 *   **Result:** Smoother operation and less motor stutter.
 
@@ -90,7 +90,7 @@ Hold **Key 1 + Key 2** together to cycle through modes. The Red LED will flash t
 
 ### How to Start the Chain
 1.  Set all units to **Mode 6** (Slave Mode).
-2.  Load filament into all units. (Blue LEDs should be Solid).
+2.  Load filament into all units. (Blue LEDs should be Solid and filament past the feeding cog).
 3.  Press **Key 2 (Feed)** once on the **First Unit** you want to start.
 4.  The chain will now run infinitely. When a spool empties, the next unit takes over automatically.
 
@@ -100,3 +100,5 @@ Hold **Key 1 + Key 2** together to cycle through modes. The Red LED will flash t
 1.  Open the project in VS Code / PlatformIO.
 2.  Ensure `buffer.h` pin definitions match the wiring table above.
 3.  Build and Upload to the STM32F0 on the Fly Buffer board.
+
+## Firmware file ready to flash will be uploaded as well!
