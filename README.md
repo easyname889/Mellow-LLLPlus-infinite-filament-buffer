@@ -1,7 +1,7 @@
 aliexpress.com/item/1005008820016221.html
 ---
 
-# Fly Buffer LLLP - Smart Daisy-Chain Firmware (V2.8)
+# Fly Buffer LLLP - Smart Daisy-Chain Firmware (V1.2)
 
 This custom firmware for the **Mellow Fly Buffer (LLLP)** board completely overhauls the logic to allow for **Round-Robin Continuous Feeding**. It enables multiple buffer units to be daisy-chained together, automatically switching to the next spool when one runs empty, creating an infinite filament loop for 3D printing.
 
