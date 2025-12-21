@@ -6,7 +6,7 @@
   * @date    2025/12/21
   * @brief   Fly Buffer Firmware - Round Robin Edition
   *
-  * @note    --- FIRMWARE V2.8 FEATURE SUMMARY ---
+  * @note    --- FIRMWARE V1.2 FEATURE SUMMARY ---
   *
   *          1. MODES (Set by holding both buttons):
   *             - Mode 0: Factory Mode. Motor stops in the neutral zone. (1 LONG Red Blink)
