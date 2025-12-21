@@ -1,5 +1,3 @@
-Here is a comprehensive README description formatted for GitHub. You can copy and paste this directly into your `README.md` file.
-
 ---
 
 # Fly Buffer LLLP - Smart Daisy-Chain Firmware (V2.8)
