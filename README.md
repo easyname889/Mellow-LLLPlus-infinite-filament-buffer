@@ -1,4 +1,6 @@
-## I would be super happy if you bought your LLLP`s trough my affiliate link here, you get same price and i get a couple of cents =) ---> https://s.click.aliexpress.com/e/_c3Mx41N7
+## I would be super happy if you bought your Mellow filament buffer plus (LLLP`s) trough my affiliate link here, you get same price and i get a couple of cents =) ---> https://s.click.aliexpress.com/e/_c3Mx41N7
+
+To create a infinite filament system i would recommend at least 2 LLLPs, if you have a elegoo oragstorm giga printer i would recommend a front LLLP that is running "front" and running separate from the back daisy chained ones. So its 1+2 at minimum (total 3).
 ---
 
 # Fly Buffer LLLP - Smart Daisy-Chain Firmware (V1.2)
