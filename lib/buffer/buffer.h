@@ -1,9 +1,9 @@
 /**
   ***************************************************************************************
   * @file    buffer.cpp
-  * @author  lijihu (Modified by Assistant v2.8 Final)
-  * @version V2.8.0
-  * @date    2025/05/10
+  * @author  easyname889
+  * @version V1.2
+  * @date    2025/12/21
   * @brief   Fly Buffer Firmware - Round Robin Edition
   *
   * @note    --- FIRMWARE V2.8 FEATURE SUMMARY ---
