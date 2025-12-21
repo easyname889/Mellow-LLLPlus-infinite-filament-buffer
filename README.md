@@ -1,5 +1,5 @@
-# I would be super happy if you bought your Mellow filament buffer plus (LLLP`s) trough my affiliate link here, you get same price and i get a couple of cents =) ---> 
-Official Mellow LLLP shop https://s.click.aliexpress.com/e/_c3Mx41N7
+# I would be super happy if you bought your Mellow filament buffer plus (LLLP`s) trough my affiliate link here, you get same price and i get a couple of cents =) 
+# ---> Official Mellow LLLP shop https://s.click.aliexpress.com/e/_c3Mx41N7
 
 ##To create a infinite filament system you need at least 2 LLLPs, if you have a Elegoo Orangestorm Giga printer i would recommend one front LLLP that is running "front" and that will run separate from the back daisy chained ones. So its 1+2 at minimum (total 3).
 ---
