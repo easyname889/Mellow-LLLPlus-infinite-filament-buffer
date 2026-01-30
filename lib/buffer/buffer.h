@@ -79,19 +79,6 @@ struct Buffer {
     uint8_t key2;
 };
 
-struct BlockageDetect {
-    bool blockage_flag;
-    uint32_t mdm_pulse_cnt;
-    float actual_distance;
-    float target_distance;
-    uint32_t last_pulse_cnt;
-    uint32_t pulse_cnt;
-    int32_t pulse_cnt_sub;
-    int32_t extrusion_pulse_cnt;
-    float distance_error;
-    float allow_error;
-};
-
 // --- GLOBAL VARIABLES ---
 extern TMC2209Stepper driver;
 extern Buffer buffer;
@@ -100,8 +87,6 @@ extern uint32_t VACTUAL_VALUE;
 extern float SPEED;
 extern uint32_t timeout;
 extern bool connet_mdm_flag;
-extern BlockageDetect blockage_detect;
-extern uint32_t blockage_inform_times;
 extern uint8_t maintenance_divider;
 extern bool auto_mode;
 extern bool is_error;
@@ -118,7 +103,6 @@ void motor_control();
 void timer_it_callback();
 void key1_it_callback();
 void key2_it_callback();
-void Blockage_Detect();
 void USB_Serial_Analys();
 bool Check_Connet_MDM();
 void Pulse_Receive_Init();

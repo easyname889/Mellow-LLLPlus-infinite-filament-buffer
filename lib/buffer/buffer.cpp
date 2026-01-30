@@ -29,9 +29,7 @@ uint32_t inform_flag = false;
 uint32_t inform_times = 0;
 
 uint32_t steps = 916;
-BlockageDetect blockage_detect = {0};
 bool connet_mdm_flag = false;
-uint32_t blockage_inform_times = 0;
 
 float encoder_length = 1.73;
 float allow_error_scale = 2.0;
@@ -168,9 +166,10 @@ void buffer_loop()
         uint32_t nowTime = millis();
         read_sensor_state();
         bool has_filament = (buffer.buffer1_material_swtich_state == 0);
+        digitalWrite(DUANLIAO, has_filament ? HIGH : LOW);
 
         if (!visual_override) {
-            if (blockage_detect.blockage_flag || is_error) {
+            if (is_error) {
                 if (nowTime - lastToggleTime >= 50) {
                     lastToggleTime = nowTime;
                     digitalWrite(ERR_LED, !digitalRead(ERR_LED));
@@ -192,16 +191,9 @@ void buffer_loop()
 
         check_speed_combo();
 
-        if(connet_mdm_flag) Blockage_Detect();
         motor_control();
         USB_Serial_Analys();
 
-        if (blockage_detect.blockage_flag) {
-            if (millis() - blockage_inform_times > 3000) {
-                digitalWrite(DULIAO, HIGH);
-                blockage_detect.blockage_flag = false;
-            }
-        }
         g_run_cnt++;
     }
 }
@@ -228,6 +220,7 @@ void buffer_motor_init(){
   digitalWrite(EN_PIN, LOW);
   UART.begin(9600);
   driver.begin();
+  driver.pdn_disable(true);
   driver.I_scale_analog(false); driver.toff(5);
   driver.rms_current(I_CURRENT); driver.microsteps(Move_Divide_NUM); driver.VACTUAL(0);
   driver.en_spreadCycle(true); driver.pwm_autoscale(true);
@@ -336,8 +329,8 @@ void motor_control(void)
           motor_state = Stop; auto_unload_active = false; is_error = true;
       }
       else {
-          motor_state = Back; driver.VACTUAL(VACTUAL_VALUE);
-          last_motor_state = motor_state; digitalWrite(DULIAO, LOW); return;
+          motor_state = Back;
+          digitalWrite(DULIAO, LOW); goto DRIVE_MOTOR;
       }
   }
 
@@ -481,7 +474,6 @@ void key2_it_callback(void){
     }
 }
 
-void Recv_MDM_Pulse_IT_Callback(void){ blockage_detect.mdm_pulse_cnt++; }
 void Dir_IT_Callback(void){ if((SIGNAL_COUNT_DIR_GPIO_Port->IDR & SIGNAL_COUNT_DIR_Pin)) SIGNAL_COUNT_Get_TIM->CR1 &= ~(TIM_CR1_DIR); else SIGNAL_COUNT_Get_TIM->CR1 |= (TIM_CR1_DIR); }
 
 void USB_Serial_Analys(void){
@@ -500,29 +492,22 @@ void USB_Serial_Analys(void){
                 Serial.print("Saved steps="); Serial.println(steps);
                 if(connet_mdm_flag) { REIN_TIM_SIGNAL_COUNT_DeInit(); REIN_TIM_SIGNAL_COUNT_Init(); }
             }
-            else if(serial_buf.startsWith("clear")){
-                blockage_detect.actual_distance=0; blockage_detect.target_distance=0;
-                blockage_detect.mdm_pulse_cnt=0; blockage_detect.extrusion_pulse_cnt=0;
-            }
             else if(serial_buf.startsWith("encoder ")){
                 encoder_length=fastAtof(serial_buf.substring(8).c_str());
                 EEPROM.put(EEPROM_ADDR_ENCODER_LENGTH, encoder_length);
                 Serial.print("Saved encoder="); Serial.println(encoder_length);
-                blockage_detect.allow_error = encoder_length*allow_error_scale;
             }
             else if(serial_buf.startsWith("info")){
                 Serial.println("encoder_length="+String(encoder_length));
                 Serial.println("timeout="+String(timeout));
                 Serial.println("steps="+String(steps));
                 Serial.println("allow_error_scale="+String(allow_error_scale));
-                Serial.println("allow_error="+String(blockage_detect.allow_error));
                 Serial.println("maintenance_divider="+String(maintenance_divider));
             }
             else if(serial_buf.startsWith("scale ")){
                 allow_error_scale=fastAtof(serial_buf.substring(6).c_str());
                 EEPROM.put(EEPROM_ADDR_ERROR_SCALE, allow_error_scale);
                 Serial.print("Saved scale="); Serial.println(allow_error_scale);
-                blockage_detect.allow_error = encoder_length*allow_error_scale;
             }
             else if(serial_buf.startsWith("speed ")){
                 SPEED=fastAtof(serial_buf.substring(6).c_str());
@@ -571,69 +556,11 @@ void Signal_Dir_Init(void){
 void Pulse_Receive_Init(void){
     EEPROM.get(EEPROM_ADDR_ERROR_SCALE, allow_error_scale);
     if(isnan(allow_error_scale) || allow_error_scale <= 0.01f) allow_error_scale = 2.0;
-    if(connet_mdm_flag){ pinMode(PULSE2_PIN,INPUT); attachInterrupt(PULSE2_PIN, Recv_MDM_Pulse_IT_Callback, RISING); }
     EEPROM.get(EEPROM_ADDR_ENCODER_LENGTH, encoder_length);
     if(isnan(encoder_length) || encoder_length <= 0.001f) encoder_length = 1.73;
     EEPROM.get(EEPROM_ADDR_STEPS, steps);
     if(steps == 0 || steps > 51200) steps = 916;
     if(connet_mdm_flag) REIN_TIM_SIGNAL_COUNT_Init();
-    blockage_detect.allow_error = encoder_length*allow_error_scale;
-}
-
-void Blockage_Detect(void){
-    static uint32_t last_target_distance=0;
-    static uint32_t last_timer_cnt=0;
-    static uint32_t last_time=0;
-
-    uint32_t current_cnt = SIGNAL_COUNT_Get_TIM->CNT;
-    if(last_timer_cnt == current_cnt){
-        if(millis()-last_time>=500){
-            blockage_detect.actual_distance=0; blockage_detect.target_distance=0;
-            blockage_detect.mdm_pulse_cnt=0; blockage_detect.extrusion_pulse_cnt=0;
-        }
-    } else {
-        last_time=millis();
-        int32_t diff = (int32_t)current_cnt - (int32_t)last_timer_cnt;
-        if (diff > 32768) diff -= 65536;
-        else if (diff < -32768) diff += 65536;
-
-        blockage_detect.pulse_cnt_sub = diff;
-        blockage_detect.extrusion_pulse_cnt += diff;
-        last_timer_cnt = current_cnt;
-
-        if(blockage_detect.extrusion_pulse_cnt<0) blockage_detect.target_distance=0;
-        else blockage_detect.target_distance=(float)blockage_detect.extrusion_pulse_cnt / (float)steps;
-    }
-    blockage_detect.actual_distance=blockage_detect.mdm_pulse_cnt*encoder_length;
-    blockage_detect.distance_error=blockage_detect.actual_distance-blockage_detect.target_distance;
-
-    static bool detect_blockage=false;
-    static uint32_t detect_blockage_time=0;
-
-    if(!detect_blockage){
-        if(blockage_detect.target_distance != last_target_distance){
-            if(fabs(blockage_detect.distance_error)>blockage_detect.allow_error&&blockage_detect.target_distance>=blockage_detect.allow_error){
-                detect_blockage=true;
-                detect_blockage_time=millis();
-            }
-            last_target_distance = (uint32_t)blockage_detect.target_distance;
-        }
-    }
-    else {
-        if(millis()-detect_blockage_time>=100){
-            if(fabs(blockage_detect.distance_error)>blockage_detect.allow_error){
-                blockage_detect.blockage_flag=true;
-                blockage_inform_times=millis();
-                digitalWrite(DULIAO,LOW);
-                detect_blockage=false;
-                blockage_detect.mdm_pulse_cnt=0;
-                blockage_detect.extrusion_pulse_cnt=0;
-            }
-            else{
-                detect_blockage=false;
-            }
-        }
-    }
 }
 
 float fastAtof(const char *s) {
