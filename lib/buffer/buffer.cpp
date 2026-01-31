@@ -201,6 +201,8 @@ bool check_speed_combo() {
 // -------------------------------------------------------------------------
 void buffer_loop()
 {
+    int8_t last_led_mode = -1; // -1:None, 0:Blockage, 1:Runout, 2:SlaveWait, 3:Active
+
     while (1)
     {
         uint32_t nowTime=millis();
@@ -210,33 +212,47 @@ void buffer_loop()
         if (!visual_override) {
             // 1. Error/Blockage
             if (blockage_detect.blockage_flag) {
+                if (last_led_mode != 0) {
+                    digitalWrite(START_LED, LOW);
+                    last_led_mode = 0;
+                }
                 if (nowTime - lastToggleTime >= 50) {
                     lastToggleTime = nowTime; digitalToggle(ERR_LED);
                 }
-                digitalWrite(START_LED, LOW);
             }
             // 2. Runout (Empty) -> Fast Blue Blink
             else if (!has_filament) {
+                if (last_led_mode != 1) {
+                    digitalWrite(ERR_LED, LOW);
+                    last_led_mode = 1;
+                }
                 if (nowTime - lastToggleTime >= 200) { // Fast Blink for Empty
                     lastToggleTime = nowTime; digitalToggle(START_LED);
                 }
-                digitalWrite(ERR_LED, LOW);
             }
             // 3. Slave Waiting (Mode 6 + Loaded + Not Running) -> Slow Blink (Waiting)
             else if (maintenance_divider == 6 && !run_latch && has_filament) {
+                if (last_led_mode != 2) {
+                     digitalWrite(ERR_LED, LOW);
+                     last_led_mode = 2;
+                }
                 if (nowTime - lastToggleTime >= 1000) { // 1 sec Blink (Breathing)
                      lastToggleTime = nowTime; digitalToggle(START_LED);
                 }
-                digitalWrite(ERR_LED, LOW);
             }
             // 4. Active / Running -> Solid Blue
             else {
-                digitalWrite(ERR_LED, LOW);
-                digitalWrite(START_LED, HIGH);
+                if (last_led_mode != 3) {
+                    digitalWrite(ERR_LED, LOW);
+                    digitalWrite(START_LED, HIGH);
+                    last_led_mode = 3;
+                }
             }
         }
 
-        check_speed_combo();
+        if (check_speed_combo()) {
+            last_led_mode = -1;
+        }
 
         if(connet_mdm_flag) Blockage_Detect();
         motor_control();
