@@ -55,7 +55,7 @@ To create an infinite loop, wire the signal pins in a circle and share the Y-Sen
 2.  **Y-Splitter Sensor (The Safety):**
     *   Connect the Y-Splitter Switch Signal to **Pin PB14** on **ALL** units (Parallel connection).
     *   Connect Switch GND to **GND** on **ALL** units.
-    *   *Logic:* High (4.6V) = Blocked/Wait. Low (0V) = Clear/Go.
+    *   *Logic:* High (4.6V) = Clear/Go. Low (0V) = Blocked/Wait.
 
 ---
 
