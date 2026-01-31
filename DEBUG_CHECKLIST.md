@@ -5,9 +5,6 @@ Before running the firmware, you **MUST** verify the following pin definitions m
 
 | Signal | Code Definition | Description | Verify? |
 | :--- | :--- | :--- | :--- |
-| **EN_PIN** | `PA10` | Motor Enable | [ ] |
-| **STEP_PIN** | `PA9` | Motor Step | [ ] |
-| **DIR_PIN** | `PA8` | Motor Direction | [ ] |
 | **UART Pin** | `Serial1` | TMC2209 UART | [ ] |
 | **FRONT_SIG** | `PB5` | Input from Prev Unit | [ ] |
 | **DULIAO** | `PB15` | Output to Next Unit | [ ] |

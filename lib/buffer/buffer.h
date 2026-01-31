@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <HardwareSerial.h>
 #include <TMCStepper.h>
+#include <EEPROM.h>
 
 // -------------------------------------------------------------------------
 // PIN DEFINITIONS
@@ -42,12 +43,6 @@
 // Motor Driver Pins (Placeholders - Verify Hardware!)
 #ifndef EN_PIN
 #define EN_PIN              PA10
-#endif
-#ifndef STEP_PIN
-#define STEP_PIN            PA9
-#endif
-#ifndef DIR_PIN
-#define DIR_PIN             PA8
 #endif
 
 // TMC2209 Config

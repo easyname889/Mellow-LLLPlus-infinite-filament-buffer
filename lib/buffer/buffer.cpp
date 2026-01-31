@@ -271,8 +271,7 @@ void buffer_sensor_init(){
 }
 
 void buffer_motor_init(){
-  pinMode(EN_PIN, OUTPUT); pinMode(STEP_PIN, OUTPUT); pinMode(DIR_PIN, OUTPUT);
-  digitalWrite(EN_PIN, LOW);
+  pinMode(EN_PIN, OUTPUT); digitalWrite(EN_PIN, LOW); // Enable driver hardware
   driver.begin(); driver.beginSerial(9600); driver.I_scale_analog(false); driver.toff(5);
   driver.rms_current(I_CURRENT); driver.microsteps(Move_Divide_NUM); driver.VACTUAL(Stop); // VACTUAL takes int32_t speed
   driver.en_spreadCycle(true); driver.pwm_autoscale(true);
@@ -498,13 +497,17 @@ void motor_control(void)
 
   switch(motor_state) {
     case Forward:
+      digitalWrite(EN_PIN, LOW);
       if(last_motor_state == Back) driver.VACTUAL(0); // STOP before reverse
       driver.VACTUAL(-VACTRUAL_VALUE); break;
     case Back:
+      digitalWrite(EN_PIN, LOW);
       if(last_motor_state == Forward) driver.VACTUAL(0); // STOP before reverse
       driver.VACTUAL(VACTRUAL_VALUE); break;
     case Stop:
-      driver.VACTUAL(0); break;
+      driver.VACTUAL(0);
+      // Do NOT disable driver on stop to maintain holding torque and quick response
+      break;
   }
   last_motor_state = motor_state;
 }
