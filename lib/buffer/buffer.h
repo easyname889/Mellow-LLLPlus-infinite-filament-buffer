@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <HardwareSerial.h>
 #include <TMCStepper.h>
+#include <EEPROM.h>
 
 // -------------------------------------------------------------------------
 // PIN DEFINITIONS
@@ -74,39 +75,18 @@ enum Motor_State {
     Back
 };
 
-struct BlockageDetect {
-    bool blockage_flag;
-    uint32_t mdm_pulse_cnt;
-    uint32_t pulse_cnt;
-    uint32_t last_pulse_cnt;
-    int32_t pulse_cnt_sub;
-    int32_t extrusion_pulse_cnt;
-    float target_distance;
-    float actual_distance;
-    float distance_error;
-    float allow_error;
-};
-
 // -------------------------------------------------------------------------
 // GLOBALS (Externs)
 // -------------------------------------------------------------------------
 extern TMC2209Stepper driver;
 extern Buffer buffer;
 extern Motor_State motor_state;
-extern BlockageDetect blockage_detect;
 
 extern bool is_front;
 extern uint32_t front_time;
 extern uint32_t timeout;
 extern bool is_error;
 extern String serial_buf;
-
-extern bool connet_mdm_flag;
-extern uint32_t blockage_inform_times;
-extern float encoder_length;
-extern float allow_error_scale;
-
-extern uint32_t steps;
 extern float SPEED;
 extern uint32_t VACTRUAL_VALUE;
 extern uint32_t Move_Divide_NUM;
@@ -129,13 +109,7 @@ void buffer_motor_init();
 void iwdg_init();
 void timer_it_callback();
 void Signal_Dir_Init();
-void Pulse_Receive_Init();
-void REIN_TIM_SIGNAL_COUNT_Init();
-void REIN_TIM_SIGNAL_COUNT_DeInit();
-bool Check_Connet_MDM();
-void Blockage_Detect();
 void USB_Serial_Analys();
-void Recv_MDM_Pulse_IT_Callback();
 void Dir_IT_Callback();
 void key1_it_callback();
 void key2_it_callback();
