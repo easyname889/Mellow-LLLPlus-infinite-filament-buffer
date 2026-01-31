@@ -294,7 +294,8 @@ void motor_control(void)
 {
   static bool half_speed_active = false;
   static bool filling_latch = false;
-  static uint32_t pulse_end_time = 0;
+  static uint32_t pulse_start_time = 0;
+  static bool pulsing_active = false;
   static Motor_State pulse_direction = Stop;
   static bool auto_unload_active = false;
   static uint32_t unload_timer = 0;
@@ -333,7 +334,7 @@ void motor_control(void)
       } else {
           if (key1_start != 0 && !key1_handled_3s && !key1_handled_5s) {
               if (millis() - key1_start < 2000) {
-                  pulse_direction = Back; pulse_end_time = millis() + 2000;
+                  pulse_direction = Back; pulse_start_time = millis(); pulsing_active = true;
                   auto_unload_active = false; update_run_latch(false);
               }
           }
@@ -354,11 +355,16 @@ void motor_control(void)
       } else {
           if (key2_start != 0 && !key2_handled) {
               if (millis() - key2_start < 2000) {
-                  pulse_direction = Forward; pulse_end_time = millis() + 2000;
+                  pulse_direction = Forward; pulse_start_time = millis(); pulsing_active = true;
               }
           }
           key2_start = 0; key2_handled = false;
       }
+  }
+
+  // Check Pulse Timeout (Overflow Protected)
+  if (pulsing_active && (millis() - pulse_start_time >= 2000)) {
+      pulsing_active = false;
   }
 
   // --- DAISY CHAIN SIGNAL CHECK ---
@@ -398,14 +404,14 @@ void motor_control(void)
   else if ((key1_pressed && !key1_handled_3s && !key1_handled_5s) || (key2_pressed && !key2_handled)) {
       motor_state = Stop; half_speed_active = false; filling_latch = false;
       // Do NOT update latch here, just stop motor
-      pulse_end_time = 0; feed_timer_start = 0;
+      pulsing_active = false; feed_timer_start = 0;
       digitalWrite(DULIAO, LOW); goto DRIVE_MOTOR;
   }
 
   // P2: Pulse (2s)
-  else if (millis() < pulse_end_time) {
+  else if (pulsing_active) {
       if (pulse_direction == Forward && (buffer.buffer1_pos2_sensor_state || buffer.buffer1_pos3_sensor_state)) {
-          motor_state = Stop; pulse_end_time = 0;
+          motor_state = Stop; pulsing_active = false;
       } else {
           motor_state = pulse_direction;
       }
