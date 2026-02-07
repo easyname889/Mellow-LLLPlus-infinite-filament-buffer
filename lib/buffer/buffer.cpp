@@ -4,7 +4,7 @@
 // -------------------------------------------------------------------------
 // GLOBALS
 // -------------------------------------------------------------------------
-TMC2209Stepper driver(UART, R_SENSE, DRIVER_ADDRESS);
+TMC2209Stepper driver(&UART, R_SENSE, DRIVER_ADDRESS);
 Buffer buffer = {0};
 Motor_State motor_state = Stop;
 static Motor_State last_motor_state = Stop;
@@ -250,7 +250,6 @@ void buffer_sensor_init(){
   pinMode(DUANLIAO,OUTPUT); pinMode(ERR_LED,OUTPUT); pinMode(START_LED,OUTPUT); pinMode(DULIAO,OUTPUT);
 
   pinMode(CHAIN_Y_SENSOR_PIN, INPUT);
-  pinMode(EXTENSION_PIN2, OUTPUT); digitalWrite(EXTENSION_PIN2, HIGH); // V1.0 legacy?
 
   digitalWrite(DULIAO, HIGH); digitalWrite(DUANLIAO, HIGH);
 
