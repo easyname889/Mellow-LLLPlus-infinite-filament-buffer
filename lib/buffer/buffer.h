@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <HardwareSerial.h>
 #include <TMCStepper.h>
+#include <EEPROM.h>
 
 // -------------------------------------------------------------------------
 // PIN DEFINITIONS
